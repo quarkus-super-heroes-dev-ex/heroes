@@ -1,0 +1,67 @@
+quarkus:
+  application:
+    name: rest-heroes
+  log:
+    level: INFO
+    category:
+      "io.quarkus.sample.superheroes":
+        level: DEBUG
+    console:
+      format: "%d{HH:mm:ss} %-5p traceId=%X{traceId}, parentId=%X{parentId}, spanId=%X{spanId}, sampled=%X{sampled} [%c{2.}] (%t) %s%e%n"
+      level: INFO
+      darken: 1
+  otel:
+    resource:
+      attributes: "app=${quarkus.application.name},application=heroes-service,system=quarkus-super-heroes"
+    exporter:
+      otlp:
+        traces:
+          endpoint: ${OTEL_URL}
+  datasource:
+    db-kind: postgresql
+    username: ${HEROES_DB_USER}
+    password: ${HEROES_DB_PWD}
+    reactive:
+      url: "postgresql://${HEROES_DB_HOST}/${HEROES_DB_SCHEMA}"
+  hibernate-orm:
+    database:
+      generation: 
+        ~: update
+  http:
+    cors:
+      ~: true
+      origins: "*"
+    port: ${HERO_SERVICE_PORT}
+    test-port: 0
+  jackson:
+    serialization-inclusion: non-empty
+  smallrye-openapi:
+    info-title: Hero API
+    info-description: This API allows CRUD operations on a hero
+    info-version: 1.0
+    info-contact-name: Quarkus
+    info-contact-url: https://github.com/quarkusio
+  swagger-ui:
+    always-include: true
+  devservices:
+    enabled: false
+
+"%dev":
+  quarkus:
+    log:
+      console:
+        format: "%d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
+        level: DEBUG
+
+"%test":
+  quarkus:
+    log:
+      console:
+        format: "%d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
+        level: DEBUG
+
+"%prod":
+  quarkus:
+    hibernate-orm:
+      sql-load-script: import.sql
+
